@@ -6,7 +6,6 @@ from classification_model import original_classification_pipeline
 
 
 def original_analysis_pipeline(df, df_control, df_cancer):
-
     # Dimensionality reduction
     print("Applying dimensionality reduction...")
     df_significant_cpg = get_significant_cpg_index(df)
@@ -25,7 +24,6 @@ def original_analysis_pipeline(df, df_control, df_cancer):
 
 
 def custom_analysis_pipeline(df, df_control, df_cancer):
-
     normalized_df = normalize_df(df)
     transposed_df = normalized_df.T
 

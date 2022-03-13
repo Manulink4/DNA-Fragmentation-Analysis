@@ -21,7 +21,7 @@ def original_classification_pipeline(df_final):
 
     for i in range(iterations):
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.05, stratify=y
+            X, y, test_size=(2/X.shape[0]), stratify=y
         )
 
         print(y_test)

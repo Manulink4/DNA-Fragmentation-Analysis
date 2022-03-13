@@ -45,14 +45,13 @@ def get_significant_cpg_index(df):
 #####################################################
 
 def use_pca(df):
-    components = 15
-    pca = PCA(n_components=components)
+    pca = PCA(n_components=10)
     df_pca = pca.fit_transform(df)
     return df_pca
 
 
-def use_kpca(df, components=40):
-    kpca = KernelPCA(n_components=40, kernel='linear')
+def use_kpca(df):
+    kpca = KernelPCA(n_components=10, kernel='linear')
     df_pca = kpca.fit_transform(df)
     return df_pca
 
