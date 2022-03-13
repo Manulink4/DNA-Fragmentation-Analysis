@@ -10,3 +10,5 @@ jupyter
 scipy
 numpy
 scikit-learn
+mrmr_selection
+umap

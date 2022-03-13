@@ -24,6 +24,7 @@ def original_classification_pipeline(df_final):
             X, y, test_size=0.05, stratify=y
         )
 
+        print(y_test)
         for ground_truth in y_test:
             all_y_true.append(ground_truth)
 
