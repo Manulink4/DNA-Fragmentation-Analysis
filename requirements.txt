@@ -11,4 +11,5 @@ scipy
 numpy
 scikit-learn
 mrmr_selection
-umap
+umap-learn
+
