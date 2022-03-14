@@ -8,6 +8,7 @@ def main(original=False, cancer_type='Breast_Cancer'):
     print("Creating dataset...")
     folder = '../data/'
     df, df_control, df_cancer = create_dataset(folder + cancer_type)
+    print(df.shape, df_control.shape, df_cancer.shape)
 
     # Original or custom analysis
     if original:
@@ -21,7 +22,7 @@ def main(original=False, cancer_type='Breast_Cancer'):
 
 
 if __name__ == '__main__':
-    use_original_pipeline = False
+    use_original_pipeline = True
 
     # Cancer types: Breast_Cancer, Hepatocarcinoma, Lymphoma, Meduloblastoma, Prostate_Cancer
-    main(original=use_original_pipeline, cancer_type='Breast_Cancer')
+    main(original=use_original_pipeline, cancer_type='Prostate_Cancer')

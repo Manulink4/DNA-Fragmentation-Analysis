@@ -28,7 +28,7 @@ def custom_analysis_pipeline(df, df_control, df_cancer):
     transposed_df = normalized_df.T
 
     # Feature selection
-    df_feature_sel = use_tsne(transposed_df)
+    df_feature_sel = use_umap(transposed_df)
     df_final = pd.DataFrame(df_feature_sel)
 
     # Dataset post-processing

@@ -62,7 +62,7 @@ def use_mrmr():
 
 def use_umap(df):
     reducer = UMAP()
-    embedding = reducer.fit(df)
+    embedding = reducer.fit_transform(df)
     return embedding
 
 
