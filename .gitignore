@@ -77,6 +77,7 @@ target/
 
 # exclude data from source control by default
 /data/
+/notebooks/pruebas
 
 # Mac OS-specific storage files
 .DS_Store
