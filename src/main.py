@@ -5,19 +5,23 @@ from analysis_pipeline import *
 
 def main(original=False, cancer_type='Breast_Cancer'):
     # Dataset creation
-    print("Creating dataset...")
+    print("Creating datasets...")
     folder = '../data/'
-    df, df_control, df_cancer = create_dataset_augmented(folder + cancer_type)
-    print(df.shape, df_control.shape, df_cancer.shape)
+    df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
 
-    nans = df.isnull().sum(axis=1).tolist()
-    print(len([x for x in nans if x < 2]))
+    # Train-Test split
+    x = train_test_split(df, df_cancer, df_control)
+    print(x)
+    # Feature Selection / Dimensionality Reduction
+    # Classification model
+    # Confusion Matrix / Results
 
+    #
     # # Original or custom analysis
     # if original:
-    #     confusion_matrix = original_analysis_pipeline(df, df_control, df_cancer)
+    #     confusion_matrix = original_analysis_pipeline(df, df_cancer, df_control)
     # else:
-    #     confusion_matrix = custom_analysis_pipeline(df, df_control, df_cancer)
+    #     confusion_matrix = custom_analysis_pipeline(df, df_cancer, df_control)
     #
     # print(confusion_matrix)
     # tn, fp, fn, tp = confusion_matrix.ravel()
