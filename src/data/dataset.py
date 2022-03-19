@@ -19,3 +19,21 @@ def create_dataset(data_folder):
     dataframes = [df, df_control, df_cancer]
 
     return dataframes
+
+
+def create_dataset_augmented(data_folder):
+
+    path = Path(data_folder)
+
+    df_control = pd.concat(
+        [pd.read_csv(f, sep='\t', header=None, index_col=0) for f in glob.glob(rf'{path}/control/*.breakage')], axis=1
+    )
+
+    df_cancer = pd.concat(
+        [pd.read_csv(f, sep='\t', header=None, index_col=0) for f in glob.glob(rf'{path}/cancer/*.breakage')], axis=1
+    )
+
+    df = pd.concat([df_control, df_cancer], axis=1)
+    dataframes = [df, df_control, df_cancer]
+
+    return dataframes
