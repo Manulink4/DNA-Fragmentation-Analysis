@@ -28,8 +28,10 @@ def main(original=False, cancer_type='Breast_Cancer'):
             X_test_imp = imput_missing_values(X_test, y_test)
 
         # Feature Selection / Dimensionality Reduction
+        cpgs = df_control.index
         features = use_mrmr(X_train_imp, y_train)
-        print(features)
+        res_list = [cpgs[i] for i in features]
+        print(res_list)
 
 
         # Classification model
