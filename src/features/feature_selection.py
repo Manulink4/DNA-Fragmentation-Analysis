@@ -1,11 +1,13 @@
 import numpy as np
 from scipy.stats import mannwhitneyu
 from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA, KernelPCA
-from sklearn.manifold import TSNE
+
+import pandas as pd
+from sklearn.impute import SimpleImputer
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 
 from mrmr import mrmr_classif
-from umap import UMAP
 
 
 def normalize_df(df):
@@ -44,29 +46,19 @@ def get_significant_cpg_index(df):
 #           Custom methods                          #
 #####################################################
 
-def use_pca(df):
-    pca = PCA(n_components=10)
-    df_pca = pca.fit_transform(df)
-    return df_pca
+def imput_missing_values(X, y):
+    df_cancer = X[y == 1]
+    df_control = X[y == 0]
+
+    df_cancer_imp = pd.DataFrame(SimpleImputer(strategy='mean').fit(df_cancer).transform(df_cancer))
+    df_control_imp = pd.DataFrame(SimpleImputer(strategy='mean').fit(df_control).transform(df_control))
+    df_imputed = pd.concat([df_cancer_imp, df_control_imp], axis=0).dropna(axis=1).reset_index()
+    # dataframes = [df_imputed, df_cancer_imp, df_control_imp]
+    return df_imputed
 
 
-def use_kpca(df):
-    kpca = KernelPCA(n_components=10, kernel='linear')
-    df_pca = kpca.fit_transform(df)
-    return df_pca
+def use_mrmr(X, y):
+    selected_features = mrmr_classif(X=X, y=y, K=10)
+    return selected_features
 
-
-def use_mrmr():
-    pass
-
-
-def use_umap(df):
-    reducer = UMAP()
-    embedding = reducer.fit_transform(df)
-    return embedding
-
-
-def use_tsne(df):
-    tsne_embedding = TSNE(n_components=2, learning_rate='auto').fit_transform(df)
-    return tsne_embedding
 

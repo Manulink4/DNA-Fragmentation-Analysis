@@ -2,9 +2,13 @@ import glob
 import pandas as pd
 from pathlib import Path
 
+import numpy as np
 
+
+#####################################################
+#           Original method                         #
+#####################################################
 def create_dataset_original(data_folder):
-
     path = Path(data_folder)
 
     df_cancer = pd.concat(
@@ -20,8 +24,10 @@ def create_dataset_original(data_folder):
     return dataframes
 
 
+#####################################################
+#           Custom methods                          #
+#####################################################
 def create_dataset_all_cpgs(data_folder):
-
     path = Path(data_folder)
 
     df_cancer = pd.concat(
@@ -33,21 +39,18 @@ def create_dataset_all_cpgs(data_folder):
 
     df = pd.concat([df_cancer, df_control], axis=1)
     dataframes = [df, df_cancer, df_control]
-
     return dataframes
 
 
 def filter_nans(dataframe):
     df = dataframe
     nans = df.isnull().sum(axis=1).tolist()
-    index = [index for index, value in enumerate(nans) if value < 2]
+    index = [index for index, value in enumerate(nans) if value <= int(dataframe.shape[1]*0.3)]
     filtered_df = df.iloc[index]
-
     return filtered_df
 
 
-def create_dataset_filtered_cpgs(data_folder):
-
+def create_dataset_filtered(data_folder):
     path = Path(data_folder)
 
     df_cancer = pd.concat(
@@ -62,5 +65,8 @@ def create_dataset_filtered_cpgs(data_folder):
     df_filtered = pd.concat([df_cancer_filtered, df_control_filtered], axis=1)
 
     dataframes = [df_filtered, df_cancer_filtered, df_control_filtered]
-    print("Datasets shape:", [df.shape for df in dataframes])
     return dataframes
+
+
+
+
