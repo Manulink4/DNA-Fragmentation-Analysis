@@ -13,7 +13,7 @@ from mrmr import mrmr_classif
 def normalize_df(df):
     scaler = StandardScaler()
     normalized_df = scaler.fit_transform(df)
-    return normalized_df
+    return pd.DataFrame(normalized_df)
 
 
 #####################################################
@@ -38,7 +38,6 @@ def get_significant_cpg_index(df):
     mw_results = dataframe.apply(lambda row: mw_test(row), axis=1)
     significant_cpg_coords = [idx for idx, x in enumerate(mw_results.values) if x]
     df_significant_cpg = df.iloc[significant_cpg_coords]
-
     return df_significant_cpg
 
 
@@ -52,13 +51,13 @@ def imput_missing_values(X, y):
 
     df_cancer_imp = pd.DataFrame(SimpleImputer(strategy='mean').fit(df_cancer).transform(df_cancer))
     df_control_imp = pd.DataFrame(SimpleImputer(strategy='mean').fit(df_control).transform(df_control))
-    df_imputed = pd.concat([df_cancer_imp, df_control_imp], axis=0).dropna(axis=1).reset_index()
+    df_imputed = pd.concat([df_cancer_imp, df_control_imp], axis=0).dropna(axis=1).reset_index(drop=True)
     # dataframes = [df_imputed, df_cancer_imp, df_control_imp]
     return df_imputed
 
 
-def use_mrmr(X, y):
-    selected_features = mrmr_classif(X=X, y=y, K=10)
+def use_mrmr(X, y, k):
+    selected_features = mrmr_classif(X=X, y=y, K=k)
     return selected_features
 
 

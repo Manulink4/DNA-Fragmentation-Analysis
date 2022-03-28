@@ -36,3 +36,11 @@ def original_classification_pipeline(df_final):
 
     confusion_matrix = metrics.confusion_matrix(all_y_true, filtered_y_pred)
     return confusion_matrix
+
+
+def use_svm(X_train, X_test, y_train):
+    clf = make_pipeline(svm.SVC(kernel='linear'))
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    return y_pred
+

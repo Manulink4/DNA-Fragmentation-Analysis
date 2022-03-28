@@ -1,6 +1,7 @@
 
 from data.create_dataset import *
 from analysis_pipeline import *
+from classification_model import *
 
 
 def main(original=False, cancer_type='Breast_Cancer'):
@@ -19,29 +20,9 @@ def main(original=False, cancer_type='Breast_Cancer'):
         df, df_cancer, df_control = create_dataset_filtered(folder + cancer_type)
         print("Original read shape:", df.shape, df_cancer.shape, df_control.shape)
 
-        # Train-Test split
-        X_train, X_test, y_train, y_test = train_test_splitter(df, df_cancer, df_control)
-
-        # Imput missing values
-        if cancer_type == "Breast_Cancer" or cancer_type == "Hepatocarcinoma":
-            X_train_imp = imput_missing_values(X_train, y_train)
-            X_test_imp = imput_missing_values(X_test, y_test)
-
-        # Feature Selection / Dimensionality Reduction
-        cpgs = df_control.index
-        features = use_mrmr(X_train_imp, y_train)
-        res_list = [cpgs[i] for i in features]
-        print(res_list)
-
-
-        # Classification model
-        # Confusion Matrix / Results
-        #
-        # confusion_matrix = custom_analysis_pipeline(df, df_cancer, df_control)
-        # print(confusion_matrix)
-        # tn, fp, fn, tp = confusion_matrix.ravel()
-        # print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
-
+        tp, fp, fn, tn = loop_classifier_pipeline(df, df_cancer, df_control, cancer_type)
+        print("Confusion Matrix:", tp, fp, fn, tn)
+        print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
 
 
 if __name__ == '__main__':
