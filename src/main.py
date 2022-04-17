@@ -20,7 +20,7 @@ def main(original=False, cancer_type='Breast_Cancer'):
         df, df_cancer, df_control = create_dataset_filtered(folder + cancer_type)
         print("Original read shape:", df.shape, df_cancer.shape, df_control.shape)
 
-        tp, fp, fn, tn = loop_classifier_pipeline(df, df_cancer, df_control, cancer_type)
+        tp, fp, fn, tn = loop_classifier_pipeline(df, df_cancer, df_control, cancer_type, iterations=30)
         print("Confusion Matrix:", tp, fp, fn, tn)
         print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
 

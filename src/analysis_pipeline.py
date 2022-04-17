@@ -41,10 +41,10 @@ def train_test_splitter(dataframe, df_cancer, df_control):
 #           Custom methods                          #
 #####################################################
 
-def loop_classifier_pipeline(df, df_cancer, df_control, cancer_type):
+def loop_classifier_pipeline(df, df_cancer, df_control, cancer_type, iterations):
 
     tn, fp, fn, tp = 0, 0, 0, 0
-    for i in range(50):
+    for i in range(iterations):
         print("Iter", i)
         # Train-Test split
         X_train, X_test, y_train, y_test = train_test_splitter(df, df_cancer, df_control)
