@@ -19,6 +19,7 @@ def create_dataset_original(data_folder):
     ).dropna()
 
     df = pd.concat([df_cancer, df_control], axis=1).dropna()
+    # df.columns = [i for i in range(df.shape[1])]
     dataframes = [df, df_cancer, df_control]
 
     return dataframes

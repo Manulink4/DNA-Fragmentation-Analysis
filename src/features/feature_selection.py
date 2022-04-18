@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import mannwhitneyu
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, KBinsDiscretizer
 
 import pandas as pd
 from sklearn.impute import SimpleImputer
@@ -10,10 +10,11 @@ from sklearn.impute import IterativeImputer
 from mrmr import mrmr_classif
 
 
-def normalize_df(df):
+def normalize_df(X_train, X_test):
     scaler = StandardScaler()
-    normalized_df = scaler.fit_transform(df)
-    return pd.DataFrame(normalized_df)
+    normalized_train = scaler.fit_transform(X_train)
+    normalized_test = scaler.transform(X_test)
+    return pd.DataFrame(normalized_train), pd.DataFrame(normalized_test)
 
 
 #####################################################
@@ -57,7 +58,11 @@ def imput_missing_values(X, y):
 
 
 def use_mrmr(X, y, k):
-    selected_features = mrmr_classif(X=X, y=y, K=k)
+    disc = KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='uniform')
+    X_disc = pd.DataFrame(disc.fit_transform(pd.DataFrame(X.T))).T
+    y_disc = disc.transform(y.array.reshape(1, -1)).T
+
+    selected_features = mrmr_classif(X=X_disc, y=y_disc, K=k, n_jobs=-1)
     return selected_features
 
 

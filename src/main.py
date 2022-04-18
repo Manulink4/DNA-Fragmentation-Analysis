@@ -17,10 +17,10 @@ def main(original=False, cancer_type='Breast_Cancer'):
         print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
 
     else:
-        df, df_cancer, df_control = create_dataset_filtered(folder + cancer_type)
+        df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
         print("Original read shape:", df.shape, df_cancer.shape, df_control.shape)
 
-        tp, fp, fn, tn = loop_classifier_pipeline(df, df_cancer, df_control, cancer_type, iterations=30)
+        tp, fp, fn, tn = loocv_pipeline(df, df_cancer, df_control, cancer_type)
         print("Confusion Matrix:", tp, fp, fn, tn)
         print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
 
@@ -29,4 +29,4 @@ if __name__ == '__main__':
     use_original_pipeline = False
 
     # Cancer types: Breast_Cancer, Hepatocarcinoma, Lymphoma, Meduloblastoma, Prostate_Cancer
-    main(original=use_original_pipeline, cancer_type='Breast_Cancer')
+    main(original=use_original_pipeline, cancer_type='Lymphoma')
