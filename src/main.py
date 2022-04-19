@@ -29,4 +29,4 @@ if __name__ == '__main__':
     use_original_pipeline = False
 
     # Cancer types: Breast_Cancer, Hepatocarcinoma, Lymphoma, Meduloblastoma, Prostate_Cancer
-    main(original=use_original_pipeline, cancer_type='Breast_Cancer')
+    main(original=use_original_pipeline, cancer_type='Lymphoma')

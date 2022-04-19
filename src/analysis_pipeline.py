@@ -100,11 +100,10 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type):
         X_train, X_test = normalize_df(X_train, X_test)
 
         # Feature Selection / Dimensionality Reduction
-        features = use_mrmr(X_train, y_train, 40)
-        selected_cpgs = [df_control.index[i] for i in features]
-        # print(selected_cpgs)
-        X_train_redux = X_train[features]
-        X_test_redux = X_test[features]
+        # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
+        # X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 40)
+        X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 40)
+
 
         # Classification model
         y_pred = use_svm(X_train_redux, X_test_redux, y_train)

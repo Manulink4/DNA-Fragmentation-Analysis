@@ -1,11 +1,14 @@
 import numpy as np
 from scipy.stats import mannwhitneyu
 from sklearn.preprocessing import StandardScaler, KBinsDiscretizer
+from sklearn.feature_selection import SelectKBest, chi2, f_classif,mutual_info_classif, SelectFromModel
+from sklearn.ensemble import ExtraTreesClassifier
 
 import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
+from sklearn.svm import LinearSVC
 
 from mrmr import mrmr_classif
 
@@ -57,12 +60,33 @@ def imput_missing_values(X, y):
     return df_imputed
 
 
-def use_mrmr(X, y, k):
+def use_mrmr(cpgs, X_train, X_test, y_train, k):
     disc = KBinsDiscretizer(n_bins=3, encode='ordinal', strategy='uniform')
-    X_disc = pd.DataFrame(disc.fit_transform(pd.DataFrame(X.T))).T
-    y_disc = disc.transform(y.array.reshape(1, -1)).T
-
+    X_disc = pd.DataFrame(disc.fit_transform(pd.DataFrame(X_train.T))).T
+    y_disc = disc.transform(y_train.array.reshape(1, -1)).T
     selected_features = mrmr_classif(X=X_disc, y=y_disc, K=k, n_jobs=-1)
-    return selected_features
+
+    selected_cpgs = [cpgs[i] for i in selected_features]
+    X_train_redux = X_train[selected_features]
+    X_test_redux = X_test[selected_features]
+    return selected_cpgs, X_train_redux, X_test_redux
+
+
+def use_kbest(X_train, X_test, y_train, k):
+    reductor = SelectKBest(f_classif, k=k)
+    X_train_redux = reductor.fit_transform(X_train, y_train)
+    X_test_redux = reductor.transform(X_test)
+    return X_train_redux, X_test_redux
+
+
+def use_SelectFromModel(X_train, X_test, y_train, k):
+    # clf = ExtraTreesClassifier(n_estimators=50).fit(X_train, y_train)
+    clf = LinearSVC(C=0.001, penalty="l2").fit(X_train, y_train)
+    reductor = SelectFromModel(clf, prefit=True)
+    X_train_redux = reductor.transform(X_train)
+    X_test_redux = reductor.transform(X_test)
+    print(X_train_redux.shape)
+    return X_train_redux, X_test_redux
+
 
 
