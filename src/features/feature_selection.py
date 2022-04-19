@@ -58,7 +58,7 @@ def imput_missing_values(X, y):
 
 
 def use_mrmr(X, y, k):
-    disc = KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='uniform')
+    disc = KBinsDiscretizer(n_bins=3, encode='ordinal', strategy='uniform')
     X_disc = pd.DataFrame(disc.fit_transform(pd.DataFrame(X.T))).T
     y_disc = disc.transform(y.array.reshape(1, -1)).T
 
