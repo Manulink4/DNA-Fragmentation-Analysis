@@ -12,4 +12,5 @@ scipy
 scikit-learn
 mrmr_selection
 umap-learn
+auto-sklearn
 

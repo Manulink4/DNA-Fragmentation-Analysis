@@ -9,6 +9,7 @@ from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 
+import autosklearn.classification
 
 def original_classification_pipeline(df_final):
 
@@ -43,4 +44,11 @@ def use_svm(X_train, X_test, y_train):
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     return y_pred
+
+
+def use_autosklearn():
+
+    cls = autosklearn.classification.AutoSklearnClassifier()
+    cls.fit(X_train, y_train)
+    predictions = cls.predict(X_test)
 
