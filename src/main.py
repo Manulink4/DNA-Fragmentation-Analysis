@@ -20,8 +20,7 @@ def main(original=False, cancer_type='Breast_Cancer'):
         df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
         print("Original read shape:", df.shape, df_cancer.shape, df_control.shape)
 
-        tp, fp, fn, tn = loocv_pipeline(df, df_cancer, df_control, cancer_type)
-        print("Confusion Matrix:", tp, fp, fn, tn)
+        tp, fp, fn, tn = automl_pipeline(df, df_cancer, df_control, cancer_type)
         print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
 
 

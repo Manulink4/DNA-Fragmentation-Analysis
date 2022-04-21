@@ -111,7 +111,20 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type):
         y_test_list.append(y_test)
 
     confusion_matrix = metrics.confusion_matrix(y_pred_list, y_test_list)
-    print(confusion_matrix)
+    print("Confusion matrix:\n", confusion_matrix)
     tn, fp, fn, tp = confusion_matrix.ravel()
 
     return tp, fp, fn, tn
+
+
+def automl_pipeline(df, df_cancer, df_control, cancer_type):
+    X, y = create_X_y(df, df_cancer, df_control)
+
+    y_pred = use_automl(X, y, 3)
+
+    # confusion_matrix = metrics.confusion_matrix(y_pred_list, y_test_list)
+    # print("Confusion matrix:\n", confusion_matrix)
+    # tn, fp, fn, tp = confusion_matrix.ravel()
+
+    return y_pred
+
