@@ -120,11 +120,19 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type):
 def automl_pipeline(df, df_cancer, df_control, cancer_type):
     X, y = create_X_y(df, df_cancer, df_control)
 
-    y_pred = use_automl(X, y, 3)
+    #  Stratified Kfold, suffled.
+    skfCV = StratifiedKFold(n_splits=5, shuffle=True)
 
-    # confusion_matrix = metrics.confusion_matrix(y_pred_list, y_test_list)
-    # print("Confusion matrix:\n", confusion_matrix)
-    # tn, fp, fn, tp = confusion_matrix.ravel()
+    for train_index, test_index in skfCV.split(X, y):
+        # print("TRAIN:", train_index, "TEST:", test_index)
+        X_train, X_test, y_train, y_test = X[train_index], X[test_index],\
+                                           y[train_index], y[test_index]
 
-    return y_pred
+        y_pred = use_automl(X_train, X_test, y_train, time=1)  # should be y_pred
+    confusion_matrix = metrics.confusion_matrix(y_pred, y_test)
+
+    print("Confusion matrix:\n", confusion_matrix)
+    tn, fp, fn, tp = confusion_matrix.ravel()
+
+    return tn, fp, fn, tp
 

@@ -1,5 +1,5 @@
 # ML
-from sklearn.model_selection import train_test_split, KFold
+from sklearn.model_selection import train_test_split, KFold, StratifiedKFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -46,23 +46,21 @@ def use_svm(X_train, X_test, y_train):
     return y_pred
 
 
-def use_automl(X, y, time=5):
+def use_automl(X_train, X_test, y_train, time=5):
 
     print("AutoML...")
     automl = autosklearn.classification.AutoSklearnClassifier(
         time_left_for_this_task=60*time,
         memory_limit=None, n_jobs=-1,
         include={
-            'classifier': ["libsvm_svc"],
             'feature_preprocessor': ["no_preprocessing"]
         },
-        ensemble_size=1,
-        resampling_strategy=KFold(n_splits=len(X)),
+        ensemble_size=10
     )
     print("Fitting...")
-    automl.fit(X, y)
+    automl.fit(X_train, y_train)
+    print(automl.leaderboard())
+    y_pred = automl.predict(X_test)
 
-    print("Predicting...")
-    y_pred = automl.predict(X)
     return y_pred
 
