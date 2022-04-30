@@ -59,8 +59,13 @@ def use_automl(X_train, X_test, y_train, time=5):
     )
     print("Fitting...")
     automl.fit(X_train, y_train)
-    print(automl.leaderboard())
-    y_pred = automl.predict(X_test)
 
+    print("Leaderboard:")
+    print(automl.leaderboard())
+
+    print("Results:")
+    print(automl.cv_results_)
+
+    y_pred = automl.predict(X_test)
     return y_pred
 
