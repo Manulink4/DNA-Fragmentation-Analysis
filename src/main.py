@@ -2,6 +2,7 @@
 from data.create_dataset import *
 from analysis_pipeline import *
 from classification_model import *
+from math import sqrt
 
 
 def main(original=False, cancer_type='Breast_Cancer'):
@@ -20,14 +21,13 @@ def main(original=False, cancer_type='Breast_Cancer'):
         df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
         print("Original read shape:", df.shape, df_cancer.shape, df_control.shape)
 
-        tp, fp, fn, tn = automl_pipeline(df, df_cancer, df_control, cancer_type)
+        tp, fp, fn, tn = loocv_pipeline(df, df_cancer, df_control, cancer_type)
         print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
-        # automl = automl_pipeline(df, df_cancer, df_control, cancer_type)
-        # print(automl.cv_results_)
+        print("Phi coefficient:", (tp*tn-fp*fn)/sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn)))
 
 
 if __name__ == '__main__':
     use_original_pipeline = False
 
     # Cancer types: Breast_Cancer, Hepatocarcinoma, Lymphoma, Meduloblastoma, Prostate_Cancer
-    main(original=use_original_pipeline, cancer_type='Breast_Cancer')
+    main(original=use_original_pipeline, cancer_type='Meduloblastoma')

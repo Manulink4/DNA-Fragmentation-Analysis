@@ -45,36 +45,37 @@ def train_test_splitter(df, df_cancer, df_control):
     return X_train, X_test, y_train, y_test
 
 
-def loop_classifier_pipeline(df, df_cancer, df_control, cancer_type, iterations=15):
+def holdout_pipeline(df, df_cancer, df_control, cancer_type, iterations=15):
     tn, fp, fn, tp = 0, 0, 0, 0
     for i in range(iterations):
         print("Iter", i)
         # Train-Test split
         X_train, X_test, y_train, y_test = train_test_splitter(df, df_cancer, df_control)
 
-        # Imput missing values
-        if cancer_type == "Breast_Cancer" or cancer_type == "Hepatocarcinoma":
-            X_train = imput_missing_values(X_train, y_train)
-            X_test = imput_missing_values(X_test, y_test)
+        # # Imput missing values
+        # if cancer_type == "Breast_Cancer" or cancer_type == "Hepatocarcinoma":
+        #     X_train = imput_missing_values(X_train, y_train)
+        #     X_test = imput_missing_values(X_test, y_test)
 
         X_merged = pd.concat([X_train, X_test], axis=0).dropna(axis=1).reset_index(drop=True)
         X_train = X_merged[:X_train.shape[0]]
         X_test = X_merged[X_train.shape[0]:]
 
         # Normalize data
-        X_train = normalize_df(X_train)
-        X_test = normalize_df(X_test)
+        X_train, X_test= normalize_df(X_train, X_test)
 
         # Feature Selection / Dimensionality Reduction
-        features = use_mrmr(X_train, y_train, 15)
-        selected_cpgs = [df_control.index[i] for i in features]
-        X_train_redux = X_train[features]
-        X_test_redux = X_test[features]
+        # features = use_mrmr(X_train, y_train, 15)
+        # selected_cpgs = [df_control.index[i] for i in features]
+        # X_train_redux = X_train[features]
+        # X_test_redux = X_test[features]
+        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 50)
+
 
         # Classification model
         y_pred = use_svm(X_train_redux, X_test_redux, y_train)
         confusion_matrix = metrics.confusion_matrix(y_pred, y_test)
-        print(confusion_matrix)
+        # print(confusion_matrix)
 
         tn_, fp_, fn_, tp_ = confusion_matrix.ravel()
         tn += tn_
@@ -106,7 +107,7 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type):
 
 
         # Classification model
-        y_pred = use_svm(X_train_redux, X_test_redux, y_train)
+        y_pred = use_mlp(X_train_redux, X_test_redux, y_train)
         y_pred_list.append(y_pred)
         y_test_list.append(y_test)
 
@@ -117,28 +118,34 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type):
     return tp, fp, fn, tn
 
 
-def automl_pipeline(df, df_cancer, df_control, cancer_type):
+def skfcv_pipeline(df, df_cancer, df_control, cancer_type):
     X, y = create_X_y(df, df_cancer, df_control)
-
-    y_pred_list = []
-    y_test_list = []
-
-    #  Stratified Kfold, suffled.
     skfCV = StratifiedKFold(n_splits=5, shuffle=True)
 
-    print("Starting stratified K-fold CV...")
+    y_pred_list, y_test_list = [], []
     for train_index, test_index in skfCV.split(X, y):
+        # Train-Test split
+        X_train, X_test, y_train, y_test = X.iloc[list(train_index)], X.iloc[list(test_index)],\
+                                           y.iloc[list(train_index)], y.iloc[list(test_index)]
 
-        X_train, X_test, y_train, y_test = X[train_index], X[test_index],\
-                                           y[train_index], y[test_index]
-        y_pred = use_automl(X_train, X_test, y_train, time=1)
+        # Normalize data
+        X_train, X_test = normalize_df(X_train, X_test)
 
-        y_test_list.append(y_test)
-        y_pred_list.append(y_pred)
+        # Feature Selection / Dimensionality Reduction
+        # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
+        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 50)
+        # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 40)
+
+        # Classification model
+        # y_pred = use_automl(X_train_redux, X_test_redux, y_train, time=3)
+        y_pred = use_svm(X_train_redux, X_test_redux, y_train)
+
+        y_pred_list.extend(y_pred)
+        y_test_list.extend(list(y_test))
 
     confusion_matrix = metrics.confusion_matrix(y_pred_list, y_test_list)
-
     print("Confusion matrix:\n", confusion_matrix)
     tn, fp, fn, tp = confusion_matrix.ravel()
     return tn, fp, fn, tp
+
 
