@@ -22,7 +22,9 @@ def original_analysis_pipeline(df, df_cancer, df_control):
 
     print("Fitting classification model...")
     confusion_matrix = original_classification_pipeline(df_final)
-    return confusion_matrix
+    print(confusion_matrix)
+    tn, fp, fn, tp = confusion_matrix.ravel()
+    return tn, fp, fn, tp
 
 
 #####################################################

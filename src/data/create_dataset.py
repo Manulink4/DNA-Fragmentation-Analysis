@@ -1,6 +1,7 @@
 import glob
 import pandas as pd
 from pathlib import Path
+import os
 
 import numpy as np
 
@@ -69,5 +70,28 @@ def create_dataset_filtered(data_folder):
     return dataframes
 
 
+def create_dataset_all_cancer(data_folder):
+    cancer_types = ["Breast_Cancer", "Hepatocarcinoma", "Lymphoma", "Meduloblastoma", "Prostate_Cancer"]
+
+    dataframes = []
+    list_target = []
+    list_cancer_type = []
+    for cancer in cancer_types:
+        df, df_control, df_cancer = create_dataset_original(data_folder + cancer)
+        dataframes.append(df)
+        list_target.append([0] * df_control.shape[1])
+        list_target.append([1] * df_cancer.shape[1])
+        list_cancer_type.append([cancer] * (df_control.shape[1] + df_cancer.shape[1]))
+
+    df_full = pd.concat(dataframes, axis=1).dropna()
+    df_final = df_full.T
+
+    target = [t for l in list_target for t in l]
+    cancer_type = [c for l in list_cancer_type for c in l]
+
+    df_final["cancer_type"] = cancer_type
+    df_final["Target"] = target
+
+    return df_final
 
 

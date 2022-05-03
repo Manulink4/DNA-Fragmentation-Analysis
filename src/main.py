@@ -1,3 +1,4 @@
+import pandas as pd
 
 from data.create_dataset import *
 from analysis_pipeline import *
@@ -5,29 +6,31 @@ from classification_model import *
 from math import sqrt
 
 
-def main(original=False, cancer_type='Breast_Cancer'):
+def main(pipeline="custom", cancer_type='Breast_Cancer'):
 
     folder = '../data/'
 
-    # Original or custom analysis
-    if original:
+    if pipeline == "original":
         df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
-        confusion_matrix = original_analysis_pipeline(df, df_cancer, df_control)
-        print(confusion_matrix)
-        tn, fp, fn, tp = confusion_matrix.ravel()
-        print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
+        tn, fp, fn, tp = original_analysis_pipeline(df, df_cancer, df_control)
+
+    elif pipeline == "custom":
+        df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
+        tp, fp, fn, tn = loocv_pipeline(df, df_cancer, df_control, cancer_type)
 
     else:
-        df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
-        print("Original read shape:", df.shape, df_cancer.shape, df_control.shape)
+        df = create_dataset_all_cancer(folder)
+        print(df)
 
-        tp, fp, fn, tn = loocv_pipeline(df, df_cancer, df_control, cancer_type)
-        print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
-        print("Phi coefficient:", (tp*tn-fp*fn)/sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn)))
+    # print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
+    # print("Phi coefficient:", (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)))
 
 
 if __name__ == '__main__':
-    use_original_pipeline = False
+
+    # Pipeline modes: all_cancer, original, custom
+    pipeline_mode = False
 
     # Cancer types: Breast_Cancer, Hepatocarcinoma, Lymphoma, Meduloblastoma, Prostate_Cancer
-    main(original=use_original_pipeline, cancer_type='Meduloblastoma')
+    main(pipeline=pipeline_mode, cancer_type='Breast_Cancer')
+
