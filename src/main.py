@@ -16,14 +16,20 @@ def main(pipeline="custom", cancer_type='Breast_Cancer'):
 
     elif pipeline == "custom":
         df, df_cancer, df_control = create_dataset_original(folder + cancer_type)
-        tp, fp, fn, tn = loocv_pipeline(df, df_cancer, df_control, cancer_type)
+
+        results = []
+        for k in [20, 50, 80, 110, 140]:
+            tp, fp, fn, tn = loocv_pipeline(df, df_cancer, df_control, cancer_type, k)
+            acc = (tp + tn) / (tp + tn + fp + fn)
+            results.append(acc)
+        print(results)
 
     else:
         df = create_dataset_all_cancer(folder)
         tp, fp, fn, tn = all_cancer_pipeline(df)
 
-    print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
-    print("Phi coefficient:", (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)))
+    # print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
+    # print("Phi coefficient:", (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)))
 
 
 if __name__ == '__main__':

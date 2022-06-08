@@ -88,7 +88,7 @@ def holdout_pipeline(df, df_cancer, df_control, cancer_type, iterations=15):
     return tp, fp, fn, tn
 
 
-def loocv_pipeline(df, df_cancer, df_control, cancer_type):
+def loocv_pipeline(df, df_cancer, df_control, cancer_type, k):
     X, y = create_X_y(df, df_cancer, df_control)
     cv = LeaveOneOut()
 
@@ -105,7 +105,7 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type):
 
         # Feature Selection / Dimensionality Reduction
         # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
-        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 150)
+        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, k)
         # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 40)
 
 
