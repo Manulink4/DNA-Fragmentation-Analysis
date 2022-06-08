@@ -20,16 +20,16 @@ def main(pipeline="custom", cancer_type='Breast_Cancer'):
 
     else:
         df = create_dataset_all_cancer(folder)
-        print(df)
+        tp, fp, fn, tn = all_cancer_pipeline(df)
 
-    # print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
-    # print("Phi coefficient:", (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)))
+    print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
+    print("Phi coefficient:", (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)))
 
 
 if __name__ == '__main__':
 
-    # Pipeline modes: all_cancer, original, custom
-    pipeline_mode = False
+    # Pipeline modes: original, custom, all_cancer
+    pipeline_mode = "custom"
 
     # Cancer types: Breast_Cancer, Hepatocarcinoma, Lymphoma, Meduloblastoma, Prostate_Cancer
     main(pipeline=pipeline_mode, cancer_type='Breast_Cancer')

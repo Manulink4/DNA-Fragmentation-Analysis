@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import mannwhitneyu
 from sklearn.preprocessing import StandardScaler, KBinsDiscretizer
-from sklearn.feature_selection import SelectKBest, chi2, f_classif,mutual_info_classif, SelectFromModel
+from sklearn.feature_selection import SelectKBest, chi2, f_classif, mutual_info_classif, SelectFromModel
 from sklearn.ensemble import ExtraTreesClassifier
 
 import pandas as pd
@@ -73,7 +73,7 @@ def use_mrmr(cpgs, X_train, X_test, y_train, k):
 
 
 def use_kbest(X_train, X_test, y_train, k):
-    reductor = SelectKBest(f_classif, k=k)
+    reductor = SelectKBest(mutual_info_classif, k=k)
     X_train_redux = reductor.fit_transform(X_train, y_train)
     X_test_redux = reductor.transform(X_test)
     return X_train_redux, X_test_redux

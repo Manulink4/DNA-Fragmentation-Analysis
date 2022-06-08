@@ -10,8 +10,8 @@ def original_analysis_pipeline(df, df_cancer, df_control):
     # Dimensionality reduction
     print("Applying dimensionality reduction...")
     df_significant_cpg = get_significant_cpg_index(df)
-    print(df.shape)
-    print(df_significant_cpg.shape)
+    # print(df.shape)
+    # print(df_significant_cpg.shape)
 
     # Dataset post-processing
     df_significant_cpg = df_significant_cpg.T
@@ -19,10 +19,11 @@ def original_analysis_pipeline(df, df_cancer, df_control):
     df_final = df_significant_cpg.copy()
 
     df_final["Target"] = [0] * df_cancer.shape[1] + [1] * df_control.shape[1]
+    # df_final.to_csv("breast_cancer_v1.csv", index=False)
 
     print("Fitting classification model...")
     confusion_matrix = original_classification_pipeline(df_final)
-    print(confusion_matrix)
+    # print(confusion_matrix)
     tn, fp, fn, tp = confusion_matrix.ravel()
     return tn, fp, fn, tp
 
@@ -104,7 +105,7 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type):
 
         # Feature Selection / Dimensionality Reduction
         # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
-        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 50)
+        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 150)
         # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 40)
 
 
@@ -149,5 +150,68 @@ def skfcv_pipeline(df, df_cancer, df_control, cancer_type):
     print("Confusion matrix:\n", confusion_matrix)
     tn, fp, fn, tp = confusion_matrix.ravel()
     return tn, fp, fn, tp
+
+
+def all_cancer_pipeline(df):
+    X, y = df.iloc[:, :-2], df["Target"]
+    cv = LeaveOneOut()
+
+    y_pred_list, y_test_list = [], []
+    for train_idx, test_idx in cv.split(X):
+        # Train-Test split
+        X_train, X_test, y_train, y_test = X.iloc[list(train_idx)], X.iloc[list(test_idx)], \
+                                           y.iloc[list(train_idx)], y.iloc[list(test_idx)]
+
+        # Normalize data
+        X_train, X_test = normalize_df(X_train, X_test)
+
+        # Feature Selection / Dimensionality Reduction
+        # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
+        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 50)
+        # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 100)
+
+        # Classification model
+        # y_pred = use_automl(X_train_redux, X_test_redux, y_train, time=1)
+        y_pred = use_svm(X_train_redux, X_test_redux, y_train)
+
+        y_pred_list.extend(y_pred)
+        y_test_list.extend(list(y_test))
+
+    confusion_matrix = metrics.confusion_matrix(y_pred_list, y_test_list)
+    print("Confusion matrix:\n", confusion_matrix)
+    tn, fp, fn, tp = confusion_matrix.ravel()
+    return tn, fp, fn, tp
+
+
+def all_cancer_LOOCV(df):
+    X, y = df.iloc[:, :-2], df["Target"]
+    cv = LeaveOneOut()
+
+    y_pred_list = []
+    y_test_list = []
+    for train_idx, test_idx in cv.split(X):
+        print("Iter", test_idx[0])
+        # Train-Test split
+        X_train, X_test = X.iloc[train_idx, :], X.iloc[test_idx, :]
+        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+
+        # Normalize data
+        X_train, X_test = normalize_df(X_train, X_test)
+
+        # Feature Selection / Dimensionality Reduction
+        # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
+        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 50)
+        # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 40)
+
+        # Classification model
+        y_pred = use_svm(X_train_redux, X_test_redux, y_train)
+        y_pred_list.append(y_pred)
+        y_test_list.append(y_test)
+
+    confusion_matrix = metrics.confusion_matrix(y_pred_list, y_test_list)
+    print("Confusion matrix:\n", confusion_matrix)
+    tn, fp, fn, tp = confusion_matrix.ravel()
+
+    return tp, fp, fn, tn
 
 

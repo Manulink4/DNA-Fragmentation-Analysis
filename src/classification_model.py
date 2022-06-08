@@ -36,8 +36,8 @@ def original_classification_pipeline(df_final):
         y_pred = clf.predict(X_test)
         all_y_pred.append(y_pred)
 
-        print(y_pred)
-        print(y_test)
+        # print(y_pred)
+        # print(y_test)
     all_y_pred = [list(p) for p in all_y_pred]
     filtered_y_pred = [pred for sample in all_y_pred for pred in sample]
 
@@ -53,7 +53,10 @@ def use_svm(X_train, X_test, y_train):
 
 
 def use_mlp(X_train, X_test, y_train):
-    clf = MLPClassifier(alpha=0.033, beta_1=0.99, beta_2=0.9, learning_rate_init=0.1)
+    # clf = MLPClassifier(alpha=0.033, beta_1=0.99, beta_2=0.9, learning_rate_init=0.1)
+    clf = MLPClassifier(activation='tanh', alpha=0.0007012616382374584, beta_1=0.999,
+                        beta_2=0.9, hidden_layer_sizes=(38, 38, 38),
+                        learning_rate_init=0.00019655486428200451)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     return y_pred
