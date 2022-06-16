@@ -9,7 +9,7 @@ from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 
-import autosklearn.classification
+# import autosklearn.classification
 import pandas as pd
 from pprint import pprint
 import pickle
@@ -20,8 +20,12 @@ def original_classification_pipeline(df_final):
     X = df_final.loc[:, df_final.columns != 'Target']
     y = df_final["Target"]
 
+    print(X.shape)
+
     clf = make_pipeline(svm.SVC(kernel='linear'))
-    # clf = MLPClassifier(alpha=0.033, beta_1=0.99, beta_2=0.9, learning_rate_init=0.1)
+    # clf = MLPClassifier(activation='tanh', alpha=0.0007012616382374584, beta_1=0.999,
+    #                     beta_2=0.9, hidden_layer_sizes=(38, 38, 38),
+    #                     learning_rate_init=0.00019655486428200451)
     iterations = 250
     all_y_true, all_y_pred = [], []
 
@@ -59,6 +63,8 @@ def use_mlp(X_train, X_test, y_train):
                         learning_rate_init=0.00019655486428200451)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    # y_proba = clf.predict_proba(X_test)[:, 1]
+    # print(y_proba)
     return y_pred
 
 

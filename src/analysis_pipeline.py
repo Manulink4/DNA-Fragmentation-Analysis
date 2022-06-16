@@ -4,28 +4,34 @@ from features.feature_selection import get_significant_cpg_index
 from sklearn.model_selection import LeaveOneOut
 from features.feature_selection import *
 from classification_model import *
-
+import random
 
 def original_analysis_pipeline(df, df_cancer, df_control):
     # Dimensionality reduction
     print("Applying dimensionality reduction...")
+
     df_significant_cpg = get_significant_cpg_index(df)
+
     # print(df.shape)
     # print(df_significant_cpg.shape)
 
     # Dataset post-processing
     df_significant_cpg = df_significant_cpg.T
+
     df_significant_cpg.index = list(range(0, df_significant_cpg.shape[0]))
     df_final = df_significant_cpg.copy()
 
     df_final["Target"] = [0] * df_cancer.shape[1] + [1] * df_control.shape[1]
-    # df_final.to_csv("breast_cancer_v1.csv", index=False)
+
+    X = df_final.loc[:, df_final.columns != 'Target']
+    y = df_final["Target"]
 
     print("Fitting classification model...")
     confusion_matrix = original_classification_pipeline(df_final)
     # print(confusion_matrix)
     tn, fp, fn, tp = confusion_matrix.ravel()
-    return tn, fp, fn, tp
+
+    return tp, fp, fn, tn
 
 
 #####################################################
@@ -93,9 +99,10 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type, k):
     cv = LeaveOneOut()
 
     y_pred_list = []
+    y_proba_list = []
     y_test_list = []
     for train_idx, test_idx in cv.split(X):
-        print("Iter", test_idx[0])
+        # print("Iter", test_idx[0])
         # Train-Test split
         X_train, X_test = X.iloc[train_idx, :], X.iloc[test_idx, :]
         y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
@@ -104,24 +111,33 @@ def loocv_pipeline(df, df_cancer, df_control, cancer_type, k):
         X_train, X_test = normalize_df(X_train, X_test)
 
         # Feature Selection / Dimensionality Reduction
-        # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
+        # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, k)
         X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, k)
-        # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 40)
+        # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, k)
+        print(X_train_redux.shape)
 
+        # train_selected_cpgs, significant_cpg_coords = get_significant_cpg_index(X_train.T)
+        # X_train_redux = train_selected_cpgs.T
+        # print(X_train_redux.shape)
+        # X_test_redux = pd.DataFrame(X_test).T.iloc[significant_cpg_coords].T
 
         # Classification model
-        y_pred = use_mlp(X_train_redux, X_test_redux, y_train)
+        y_pred = use_svm(X_train_redux, X_test_redux, y_train)
         y_pred_list.append(y_pred)
+        # y_proba_list.append(y_proba)
         y_test_list.append(y_test)
+        # print(y_proba.flatten())
 
-    confusion_matrix = metrics.confusion_matrix(y_pred_list, y_test_list)
-    print("Confusion matrix:\n", confusion_matrix)
-    tn, fp, fn, tp = confusion_matrix.ravel()
+    confusion_matrix = metrics.confusion_matrix(y_test_list, y_pred_list)
+    # fpr, tpr, thresh = metrics.roc_curve(y_test_list, y_proba_list)
+    # auc = metrics.roc_auc_score(y_test_list, y_proba_list)
+    # print("Confusion matrix:\n", confusion_matrix)
+    tp, fp, fn, tn = confusion_matrix.ravel()
 
+    # return [confusion_matrix, fpr, tpr, thresh, auc, y_test_list, y_proba_list, y_pred_list]
     return tp, fp, fn, tn
 
-
-def skfcv_pipeline(df, df_cancer, df_control, cancer_type):
+def skfcv_pipeline(df, df_cancer, df_control, cancer_type,k):
     X, y = create_X_y(df, df_cancer, df_control)
     skfCV = StratifiedKFold(n_splits=5, shuffle=True)
 
@@ -135,13 +151,13 @@ def skfcv_pipeline(df, df_cancer, df_control, cancer_type):
         X_train, X_test = normalize_df(X_train, X_test)
 
         # Feature Selection / Dimensionality Reduction
-        # selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, 40)
-        X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 50)
+        selected_cpgs, X_train_redux, X_test_redux = use_mrmr(X.columns, X_train, X_test, y_train, k)
+        # X_train_redux, X_test_redux = use_kbest(X_train, X_test, y_train, 50)
         # X_train_redux, X_test_redux = use_SelectFromModel(X_train, X_test, y_train, 40)
 
         # Classification model
-        # y_pred = use_automl(X_train_redux, X_test_redux, y_train, time=3)
-        y_pred = use_svm(X_train_redux, X_test_redux, y_train)
+        y_pred = use_automl(X_train_redux, X_test_redux, y_train, time=3)
+        # y_pred = use_svm(X_train_redux, X_test_redux, y_train)
 
         y_pred_list.extend(y_pred)
         y_test_list.extend(list(y_test))
